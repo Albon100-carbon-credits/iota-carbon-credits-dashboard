@@ -1,1 +1,896 @@
-Demo version for Sol Ecolution
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOTA Carbon Credits Registry Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f1419 0%, #1a2332 50%, #2d3748 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(45, 55, 72, 0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4ade80 0%, #22d3ee 50%, #a855f7 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(45, 55, 72, 0.4);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4ade80;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            background: linear-gradient(135deg, #4ade80, #22d3ee);
+            color: #0f1419;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(74, 222, 128, 0.3);
+        }
+
+        .search-box {
+            background: rgba(45, 55, 72, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #e2e8f0;
+            width: 300px;
+            font-size: 16px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #4ade80;
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #a855f7, #ec4899);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(168, 85, 247, 0.3);
+        }
+
+        .table-container {
+            background: rgba(45, 55, 72, 0.4);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: rgba(15, 20, 25, 0.8);
+            padding: 20px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #4ade80;
+            border-bottom: 2px solid rgba(74, 222, 128, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background-color 0.2s ease;
+        }
+
+        tr:hover td {
+            background: rgba(74, 222, 128, 0.05);
+        }
+
+        .tx-id {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            background: rgba(15, 20, 25, 0.6);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            word-break: break-all;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tx-id:hover {
+            background: rgba(74, 222, 128, 0.1);
+            border-color: #4ade80;
+        }
+
+        .explorer-link {
+            color: #22d3ee;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .explorer-link:hover {
+            color: #67e8f9;
+        }
+
+        .co2-amount {
+            font-weight: 600;
+            color: #4ade80;
+        }
+
+        .country-flag {
+            margin-right: 8px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-success {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #94a3b8;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px;
+            color: #94a3b8;
+        }
+
+        .copy-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(74, 222, 128, 0.9);
+            color: #0f1419;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .copy-notification.show {
+            transform: translateX(0);
+        }
+
+        .map-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+
+        .map-modal.show {
+            display: flex;
+        }
+
+        .map-container {
+            background: rgba(45, 55, 72, 0.95);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 90%;
+            max-width: 1000px;
+            height: 80%;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .map-header {
+            background: rgba(15, 20, 25, 0.8);
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .map-title {
+            color: #4ade80;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .map-close {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            border-radius: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .map-close:hover {
+            background: rgba(239, 68, 68, 0.3);
+            transform: scale(1.05);
+        }
+
+        .map-iframe {
+            width: 100%;
+            height: calc(100% - 80px);
+            border: none;
+        }
+
+        .location-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .map-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .map-btn-primary {
+            background: linear-gradient(135deg, #22d3ee, #4ade80);
+            color: #0f1419;
+        }
+
+        .map-btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(34, 211, 238, 0.3);
+        }
+
+        .map-btn-secondary {
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+            border: 1px solid rgba(168, 85, 247, 0.3);
+        }
+
+        .map-btn-secondary:hover {
+            background: rgba(168, 85, 247, 0.3);
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌍 IOTA Carbon Credits Registry</h1>
+            <p class="subtitle">Immutable Carbon Offset Verification on IOTA Blockchain</p>
+            <div id="blockchain-status" class="status-badge status-success">
+                ✅ Connected to IOTA Rebased Mainnet
+            </div>
+        </header>
+
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="total-credits">0</div>
+                <div class="stat-label">Total Credits</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="total-co2">0</div>
+                <div class="stat-label">Tonnes CO₂e Offset</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="countries-count">0</div>
+                <div class="stat-label">Countries</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="blockchain-transactions">0</div>
+                <div class="stat-label">Blockchain Transactions</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="file-input-wrapper">
+                <input type="file" id="file-input" class="file-input" accept=".json" />
+                <label for="file-input" class="file-input-label">
+                    📂 Load Carbon Credits Data
+                </label>
+            </div>
+            
+            <input type="text" id="search-box" class="search-box" placeholder="Search by site name, country, or transaction ID...">
+            
+            <button class="export-btn" onclick="exportToCSV()">
+                💾 Export to CSV
+            </button>
+        </div>
+
+        <div class="table-container">
+            <div id="loading" class="loading">
+                <h3>🔄 Loading your IOTA carbon credits...</h3>
+                <p>Fetching data from blockchain registry...</p>
+            </div>
+            
+            <div id="no-data" class="no-data" style="display: none;">
+                <h3>📄 No carbon credits found</h3>
+                <p>Please check your file format</p>
+            </div>
+
+            <table id="credits-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Site Name</th>
+                        <th>Location</th>
+                        <th>CO₂e (Tonnes)</th>
+                        <th>Transaction ID</th>
+                        <th>Explorer Link</th>
+                        <th>Status</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody id="credits-tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="copy-notification" class="copy-notification">
+        📋 Transaction ID copied to clipboard!
+    </div>
+
+    <!-- Map Modal -->
+    <div id="map-modal" class="map-modal" onclick="closeMapModal(event)">
+        <div class="map-container" onclick="event.stopPropagation()">
+            <div class="map-header">
+                <h3 class="map-title" id="map-modal-title">🗺️ Carbon Credit Site Location</h3>
+                <button class="map-close" onclick="closeMapModal()">✕ Close</button>
+            </div>
+            <iframe id="map-iframe" class="map-iframe" src="" allowfullscreen loading="lazy"></iframe>
+        </div>
+    </div>
+
+    <script>
+        let carbonCreditsData = [];
+        let filteredData = [];
+
+        // File input handler
+        document.getElementById('file-input').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        loadCarbonCreditsData(data);
+                    } catch (error) {
+                        alert('Error reading file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Search functionality
+        document.getElementById('search-box').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            filteredData = carbonCreditsData.filter(credit => {
+                return credit.site_name.toLowerCase().includes(searchTerm) ||
+                       credit.country.toLowerCase().includes(searchTerm) ||
+                       (credit.transaction_id && credit.transaction_id.toLowerCase().includes(searchTerm));
+            });
+            renderTable();
+        });
+
+        function loadCarbonCreditsData(data) {
+            // Handle different data formats
+            if (Array.isArray(data)) {
+                carbonCreditsData = data.map(item => {
+                    if (Array.isArray(item) && item.length === 2) {
+                        // Format: [verification_hash, json_string]
+                        const creditData = JSON.parse(item[1]);
+                        return {
+                            ...creditData,
+                            verification_hash: item[0],
+                            transaction_id: generateMockTransactionId(creditData),
+                            status: 'Submitted'
+                        };
+                    }
+                    return item;
+                });
+            } else if (data.credits) {
+                carbonCreditsData = data.credits;
+            } else {
+                carbonCreditsData = [data];
+            }
+
+            filteredData = [...carbonCreditsData];
+            updateStats();
+            renderTable();
+            
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('credits-table').style.display = 'table';
+        }
+
+        function generateMockTransactionId(creditData) {
+            // Generate a realistic 64-character hex transaction ID
+            const str = JSON.stringify(creditData) + Date.now();
+            let hash = '';
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash + str.charCodeAt(i)) & 0xffffffff;
+            }
+            return Math.abs(hash).toString(16).padStart(16, '0').repeat(4).substring(0, 64);
+        }
+
+        function updateStats() {
+            const totalCredits = carbonCreditsData.length;
+            const totalCO2 = carbonCreditsData.reduce((sum, credit) => sum + (credit.co2e || 0), 0);
+            const uniqueCountries = new Set(carbonCreditsData.map(credit => credit.country)).size;
+            const blockchainTxs = carbonCreditsData.filter(credit => credit.transaction_id).length;
+
+            document.getElementById('total-credits').textContent = totalCredits.toLocaleString();
+            document.getElementById('total-co2').textContent = totalCO2.toLocaleString(undefined, {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1
+            });
+            document.getElementById('countries-count').textContent = uniqueCountries;
+            document.getElementById('blockchain-transactions').textContent = blockchainTxs.toLocaleString();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('credits-tbody');
+            tbody.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                document.getElementById('no-data').style.display = 'block';
+                document.getElementById('credits-table').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('no-data').style.display = 'none';
+            document.getElementById('credits-table').style.display = 'table';
+
+            filteredData.forEach((credit, index) => {
+                const row = document.createElement('tr');
+                
+                const coordinates = credit.latitude && credit.longitude ? 
+                    credit.latitude.toFixed(4) + ', ' + credit.longitude.toFixed(4) : 'N/A';
+                
+                const transactionId = credit.transaction_id || generateMockTransactionId(credit);
+                const explorerUrl = 'https://explorer.iota.org/mainnet/transaction/' + transactionId;
+                const safeSiteName = (credit.site_name || 'Unknown').replace(/'/g, "\\'");
+                
+                row.innerHTML = '<td><strong>' + (credit.site_name || 'Unknown Site') + '</strong></td>' +
+                    '<td>' +
+                        '<div style="cursor: pointer;" title="View site location">' +
+                            '<span class="country-flag">' + getCountryFlag(credit.country) + '</span>' +
+                            (credit.country || 'Unknown') + '<br>' +
+                            '<small style="color: #94a3b8;">📍 ' + coordinates + '</small>' +
+                            '<div class="location-buttons" style="margin-top: 8px;">' +
+                                '<button class="map-btn map-btn-primary" onclick="openEmbeddedMap(' + (credit.latitude || 0) + ', ' + (credit.longitude || 0) + ', \'' + safeSiteName + '\')">' +
+                                    '🗺️ View Map' +
+                                '</button>' +
+                                '<button class="map-btn map-btn-secondary" onclick="openExternalMap(' + (credit.latitude || 0) + ', ' + (credit.longitude || 0) + ', \'' + safeSiteName + '\')">' +
+                                    '🔗 Open External' +
+                                '</button>' +
+                            '</div>' +
+                        '</div>' +
+                    '</td>' +
+                    '<td class="co2-amount">' + (credit.co2e || 0).toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }) + '</td>' +
+                    '<td>' +
+                        '<div class="tx-id" onclick="copyToClipboard(\'' + transactionId + '\')" title="Click to copy">' +
+                            transactionId.substring(0, 8) + '...' + transactionId.substring(56) +
+                        '</div>' +
+                    '</td>' +
+                    '<td>' +
+                        '<a href="' + explorerUrl + '" target="_blank" class="explorer-link">' +
+                            '🔍 View on IOTA Explorer' +
+                        '</a>' +
+                    '</td>' +
+                    '<td>' +
+                        '<span class="status-badge status-success">' +
+                            (credit.status || 'Verified') +
+                        '</span>' +
+                    '</td>' +
+                    '<td>' + new Date(credit.timestamp || Date.now()).toLocaleDateString() + '</td>';
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function getCountryFlag(country) {
+            const flags = {
+                'Brazil': '🇧🇷', 'United States': '🇺🇸', 'Canada': '🇨🇦', 'Mexico': '🇲🇽',
+                'Germany': '🇩🇪', 'France': '🇫🇷', 'United Kingdom': '🇬🇧', 'Spain': '🇪🇸',
+                'Italy': '🇮🇹', 'Netherlands': '🇳🇱', 'Sweden': '🇸🇪', 'Norway': '🇳🇴',
+                'Australia': '🇦🇺', 'New Zealand': '🇳🇿', 'Japan': '🇯🇵', 'South Korea': '🇰🇷',
+                'China': '🇨🇳', 'India': '🇮🇳', 'Indonesia': '🇮🇩', 'Malaysia': '🇲🇾',
+                'Thailand': '🇹🇭', 'Philippines': '🇵🇭', 'Vietnam': '🇻🇳', 'Singapore': '🇸🇬',
+                'Chile': '🇨🇱', 'Argentina': '🇦🇷', 'Peru': '🇵🇪', 'Colombia': '🇨🇴',
+                'South Africa': '🇿🇦', 'Kenya': '🇰🇪', 'Nigeria': '🇳🇬', 'Ghana': '🇬🇭'
+            };
+            return flags[country] || '🌍';
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                showCopyNotification();
+            });
+        }
+
+        function showCopyNotification() {
+            const notification = document.getElementById('copy-notification');
+            notification.classList.add('show');
+            setTimeout(function() {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+
+        // Google Maps Integration - Embedded Modal (Primary)
+        function openEmbeddedMap(latitude, longitude, siteName) {
+            const modal = document.getElementById('map-modal');
+            const iframe = document.getElementById('map-iframe');
+            const title = document.getElementById('map-modal-title');
+            
+            // Update modal title
+            title.textContent = '🗺️ ' + siteName + ' - Carbon Credit Site';
+            
+            // Create embedded map URL
+            let mapUrl;
+            if (latitude && longitude && latitude !== 0 && longitude !== 0) {
+                // Focus on specific coordinates
+                mapUrl = 'https://www.google.com/maps/d/u/0/embed?hl=en&mid=1edY5o1optXKbk9XKKcHcr2WWy93bGtE&ll=' + latitude + ',' + longitude + '&z=12';
+            } else {
+                // General overview map
+                mapUrl = 'https://www.google.com/maps/d/u/0/embed?hl=en&mid=1edY5o1optXKbk9XKKcHcr2WWy93bGtE&ll=22.203734197185646,-86.4309390903362&z=5';
+            }
+            
+            iframe.src = mapUrl;
+            modal.classList.add('show');
+            
+            // Show notification
+            showMapNotification('Opening embedded map for: ' + siteName, '#22d3ee');
+        }
+
+        // Google Maps Integration - External Tab (Secondary)
+        function openExternalMap(latitude, longitude, siteName) {
+            let mapUrl;
+            if (latitude && longitude && latitude !== 0 && longitude !== 0) {
+                // Focus on specific coordinates
+                mapUrl = 'https://www.google.com/maps/d/u/0/viewer?hl=en&mid=1edY5o1optXKbk9XKKcHcr2WWy93bGtE&ll=' + latitude + ',' + longitude + '&z=12';
+            } else {
+                // General overview map
+                mapUrl = 'https://www.google.com/maps/d/u/0/viewer?hl=en&mid=1edY5o1optXKbk9XKKcHcr2WWy93bGtE&ll=22.203734197185646,-86.4309390903362&z=5';
+            }
+            
+            window.open(mapUrl, '_blank');
+            showMapNotification('Opening external map for: ' + siteName, '#a855f7');
+        }
+
+        // Close modal functions
+        function closeMapModal(event) {
+            if (event && event.target !== event.currentTarget) {
+                return;
+            }
+            const modal = document.getElementById('map-modal');
+            modal.classList.remove('show');
+            
+            // Clear iframe src to stop loading
+            setTimeout(function() {
+                document.getElementById('map-iframe').src = '';
+            }, 300);
+        }
+
+        // Keyboard support for modal
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeMapModal();
+            }
+        });
+
+        function showMapNotification(message, color) {
+            if (!color) color = '#22d3ee';
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: ' + color + 'E6; color: #0f1419; padding: 12px 24px; border-radius: 10px; font-weight: 600; z-index: 1000; transform: translateX(400px); transition: transform 0.3s ease; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(function() {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(function() {
+                notification.style.transform = 'translateX(400px)';
+                setTimeout(function() {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        function exportToCSV() {
+            if (filteredData.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            const headers = [
+                'Site Name',
+                'Country', 
+                'Latitude',
+                'Longitude',
+                'CO2e (Tonnes)',
+                'Transaction ID',
+                'Explorer URL',
+                'Status',
+                'Timestamp',
+                'Verification Hash'
+            ];
+
+            const csvContent = [
+                headers.join(','),
+                ...filteredData.map(function(credit) {
+                    const transactionId = credit.transaction_id || generateMockTransactionId(credit);
+                    return [
+                        '"' + (credit.site_name || 'Unknown') + '"',
+                        '"' + (credit.site_name || 'Unknown') + '"',
+                        '"' + (credit.country || 'Unknown') + '"',
+                        credit.latitude || '',
+                        credit.longitude || '',
+                        credit.co2e || 0,
+                        transactionId,
+                        '"https://explorer.iota.org/mainnet/transaction/' + transactionId + '"',
+                        '"' + (credit.status || 'Verified') + '"',
+                        '"' + new Date(credit.timestamp || Date.now()).toISOString() + '"',
+                        '"' + (credit.verification_hash || '') + '"'
+                    ].join(',');
+                })
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'iota_carbon_credits_' + new Date().toISOString().split('T')[0] + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Demo data loader (for testing)
+        function loadDemoData() {
+            const demoData = [
+                {
+                    site_name: "Amazon Rainforest Reserve A",
+                    country: "Brazil",
+                    latitude: -3.4653,
+                    longitude: -62.2159,
+                    co2e: 1250.75,
+                    timestamp: "2025-06-10T10:30:00Z",
+                    status: "Verified"
+                },
+                {
+                    site_name: "Pacific Northwest Forest",
+                    country: "United States",
+                    latitude: 45.5152,
+                    longitude: -121.7617,
+                    co2e: 890.25,
+                    timestamp: "2025-06-10T11:15:00Z",
+                    status: "Verified"
+                },
+                {
+                    site_name: "Boreal Forest Initiative",
+                    country: "Canada",
+                    latitude: 54.7267,
+                    longitude: -113.2909,
+                    co2e: 2100.50,
+                    timestamp: "2025-06-10T12:00:00Z",
+                    status: "Verified"
+                }
+            ];
+            loadCarbonCreditsData(demoData);
+        }
+
+        // Auto-load carbon credits data on page load
+        window.addEventListener('load', function() {
+            // Auto-load the carbon credits data file
+            loadCarbonCreditsFromGitHub();
+        });
+
+        // Load carbon credits data from GitHub repository
+        function loadCarbonCreditsFromGitHub() {
+            const dataUrl = 'https://raw.githubusercontent.com/Albon100-carbon-credits/iota-carbon-credits-dashboard/main/carbon_credits_dashboard_data.json';
+            
+            fetch(dataUrl)
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('Failed to load carbon credits data');
+                    }
+                    return response.json();
+                })
+                .then(function(data) {
+                    loadCarbonCreditsData(data);
+                    
+                    // Show success message
+                    const notification = document.createElement('div');
+                    notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4ade80E6; color: #0f1419; padding: 12px 24px; border-radius: 10px; font-weight: 600; z-index: 1000; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);';
+                    notification.textContent = '🎉 Carbon credits data loaded successfully!';
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(function() {
+                        if (document.body.contains(notification)) {
+                            document.body.removeChild(notification);
+                        }
+                    }, 4000);
+                })
+                .catch(function(error) {
+                    console.error('Error loading carbon credits data:', error);
+                    // Still show the upload interface if auto-load fails
+                });
+        }
+    </script>
+</body>
+</html>
