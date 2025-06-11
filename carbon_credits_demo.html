@@ -384,17 +384,6 @@
             box-shadow: 0 5px 15px rgba(34, 211, 238, 0.3);
         }
 
-        .map-btn-secondary {
-            background: rgba(168, 85, 247, 0.2);
-            color: #a855f7;
-            border: 1px solid rgba(168, 85, 247, 0.3);
-        }
-
-        .map-btn-secondary:hover {
-            background: rgba(168, 85, 247, 0.3);
-            transform: translateY(-1px);
-        }
-
         @media (max-width: 768px) {
             .controls {
                 flex-direction: column;
@@ -627,9 +616,6 @@
                                 '<button class="map-btn map-btn-primary" onclick="openEmbeddedMap(' + (credit.latitude || 0) + ', ' + (credit.longitude || 0) + ', \'' + safeSiteName + '\')">' +
                                     '🗺️ View Map' +
                                 '</button>' +
-                                '<button class="map-btn map-btn-secondary" onclick="openExternalMap(' + (credit.latitude || 0) + ', ' + (credit.longitude || 0) + ', \'' + safeSiteName + '\')">' +
-                                    '🔗 Open External' +
-                                '</button>' +
                             '</div>' +
                         '</div>' +
                     '</td>' +
@@ -686,7 +672,7 @@
             }, 2000);
         }
 
-        // Google Maps Integration - Embedded Modal (Primary)
+        // Google Maps Integration - Embedded Modal
         function openEmbeddedMap(latitude, longitude, siteName) {
             const modal = document.getElementById('map-modal');
             const iframe = document.getElementById('map-iframe');
@@ -709,22 +695,7 @@
             modal.classList.add('show');
             
             // Show notification
-            showMapNotification('Opening embedded map for: ' + siteName, '#22d3ee');
-        }
-
-        // Google Maps Integration - External Tab (Secondary)
-        function openExternalMap(latitude, longitude, siteName) {
-            let mapUrl;
-            if (latitude && longitude && latitude !== 0 && longitude !== 0) {
-                // Focus on specific coordinates
-                mapUrl = 'https://www.google.com/maps/d/u/0/viewer?hl=en&mid=1edY5o1optXKbk9XKKcHcr2WWy93bGtE&ll=' + latitude + ',' + longitude + '&z=12';
-            } else {
-                // General overview map
-                mapUrl = 'https://www.google.com/maps/d/u/0/viewer?hl=en&mid=1edY5o1optXKbk9XKKcHcr2WWy93bGtE&ll=22.203734197185646,-86.4309390903362&z=5';
-            }
-            
-            window.open(mapUrl, '_blank');
-            showMapNotification('Opening external map for: ' + siteName, '#a855f7');
+            showMapNotification('Opening map for: ' + siteName, '#22d3ee');
         }
 
         // Close modal functions
@@ -752,6 +723,7 @@
             if (!color) color = '#22d3ee';
             
             const notification = document.createElement('div');
+            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: ' + color + 'E6; color: #0f1419; padding: 12px 24px; border-radius: 10px; font-weight: 600; z-index: 1000; transform: translateX(400px); transition: transform 0.3s ease; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);';
             notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: ' + color + 'E6; color: #0f1419; padding: 12px 24px; border-radius: 10px; font-weight: 600; z-index: 1000; transform: translateX(400px); transition: transform 0.3s ease; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);';
             notification.textContent = message;
             document.body.appendChild(notification);
