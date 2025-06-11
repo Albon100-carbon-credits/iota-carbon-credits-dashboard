@@ -444,9 +444,9 @@
                     📂 Load Carbon Credits Data
                 </label>
             </div>
-            
+           
             <input type="text" id="search-box" class="search-box" placeholder="Search by site name, country, or transaction ID...">
-            
+           
             <button class="export-btn" onclick="exportToCSV()">
                 💾 Export to CSV
             </button>
@@ -457,7 +457,7 @@
                 <h3>🔄 Loading your IOTA carbon credits...</h3>
                 <p>Fetching data from blockchain registry...</p>
             </div>
-            
+           
             <div id="no-data" class="no-data" style="display: none;">
                 <h3>📄 No carbon credits found</h3>
                 <p>Please check your file format</p>
@@ -553,7 +553,7 @@
             filteredData = [...carbonCreditsData];
             updateStats();
             renderTable();
-            
+           
             document.getElementById('loading').style.display = 'none';
             document.getElementById('credits-table').style.display = 'table';
         }
@@ -598,14 +598,14 @@
 
             filteredData.forEach((credit, index) => {
                 const row = document.createElement('tr');
-                
-                const coordinates = credit.latitude && credit.longitude ? 
+               
+                const coordinates = credit.latitude && credit.longitude ?
                     credit.latitude.toFixed(4) + ', ' + credit.longitude.toFixed(4) : 'N/A';
-                
+               
                 const transactionId = credit.transaction_id || generateMockTransactionId(credit);
                 const explorerUrl = 'https://explorer.iota.org/mainnet/transaction/' + transactionId;
                 const safeSiteName = (credit.site_name || 'Unknown').replace(/'/g, "\\'");
-                
+               
                 row.innerHTML = '<td><strong>' + (credit.site_name || 'Unknown Site') + '</strong></td>' +
                     '<td>' +
                         '<div style="cursor: pointer;" title="View site location">' +
@@ -639,7 +639,7 @@
                         '</span>' +
                     '</td>' +
                     '<td>' + new Date(credit.timestamp || Date.now()).toLocaleDateString() + '</td>';
-                
+               
                 tbody.appendChild(row);
             });
         }
@@ -677,10 +677,10 @@
             const modal = document.getElementById('map-modal');
             const iframe = document.getElementById('map-iframe');
             const title = document.getElementById('map-modal-title');
-            
+           
             // Update modal title
             title.textContent = '🗺️ ' + siteName + ' - Carbon Credit Site';
-            
+           
             // Create embedded map URL
             let mapUrl;
             if (latitude && longitude && latitude !== 0 && longitude !== 0) {
@@ -690,10 +690,10 @@
                 // General overview map
                 mapUrl = 'https://www.google.com/maps/d/u/0/embed?hl=en&mid=1edY5o1optXKbk9XKKcHcr2WWy93bGtE&ll=22.203734197185646,-86.4309390903362&z=5';
             }
-            
+           
             iframe.src = mapUrl;
             modal.classList.add('show');
-            
+           
             // Show notification
             showMapNotification('Opening map for: ' + siteName, '#22d3ee');
         }
@@ -705,7 +705,7 @@
             }
             const modal = document.getElementById('map-modal');
             modal.classList.remove('show');
-            
+           
             // Clear iframe src to stop loading
             setTimeout(function() {
                 document.getElementById('map-iframe').src = '';
@@ -721,17 +721,16 @@
 
         function showMapNotification(message, color) {
             if (!color) color = '#22d3ee';
-            
+           
             const notification = document.createElement('div');
-            notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: ' + color + 'E6; color: #0f1419; padding: 12px 24px; border-radius: 10px; font-weight: 600; z-index: 1000; transform: translateX(400px); transition: transform 0.3s ease; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);';
             notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: ' + color + 'E6; color: #0f1419; padding: 12px 24px; border-radius: 10px; font-weight: 600; z-index: 1000; transform: translateX(400px); transition: transform 0.3s ease; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);';
             notification.textContent = message;
             document.body.appendChild(notification);
-            
+           
             setTimeout(function() {
                 notification.style.transform = 'translateX(0)';
             }, 100);
-            
+           
             setTimeout(function() {
                 notification.style.transform = 'translateX(400px)';
                 setTimeout(function() {
@@ -750,7 +749,7 @@
 
             const headers = [
                 'Site Name',
-                'Country', 
+                'Country',
                 'Latitude',
                 'Longitude',
                 'CO2e (Tonnes)',
@@ -766,7 +765,6 @@
                 ...filteredData.map(function(credit) {
                     const transactionId = credit.transaction_id || generateMockTransactionId(credit);
                     return [
-                        '"' + (credit.site_name || 'Unknown') + '"',
                         '"' + (credit.site_name || 'Unknown') + '"',
                         '"' + (credit.country || 'Unknown') + '"',
                         credit.latitude || '',
@@ -835,7 +833,7 @@
         // Load carbon credits data from GitHub repository
         function loadCarbonCreditsFromGitHub() {
             const dataUrl = 'https://raw.githubusercontent.com/Albon100-carbon-credits/iota-carbon-credits-dashboard/main/carbon_credits_dashboard_data.json';
-            
+           
             fetch(dataUrl)
                 .then(function(response) {
                     if (!response.ok) {
@@ -845,13 +843,13 @@
                 })
                 .then(function(data) {
                     loadCarbonCreditsData(data);
-                    
+                   
                     // Show success message
                     const notification = document.createElement('div');
                     notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4ade80E6; color: #0f1419; padding: 12px 24px; border-radius: 10px; font-weight: 600; z-index: 1000; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);';
                     notification.textContent = '🎉 Carbon credits data loaded successfully!';
                     document.body.appendChild(notification);
-                    
+                   
                     setTimeout(function() {
                         if (document.body.contains(notification)) {
                             document.body.removeChild(notification);
