@@ -310,8 +310,8 @@
   {
     "site_name": "Esso Warwick Service Station",
     "country": "Bermuda",
-    "latitude": 32.26681,
-    "longitude": -64.80879,
+    "latitude": 32.2665134,
+    "longitude": -64.8088395,
     "co2e": 22.923,
     "timestamp": "2025-06-09T16:22:23.347459300+00:00",
     "verification_hash": "a6f07438bb160a8b",
